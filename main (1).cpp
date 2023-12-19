@@ -22,62 +22,7 @@ private:
     T2 second;
 };
 
-template <typename T>
-class Grades {
-public:
-    void inputGrades() {
-        std::cout << "Ââåäèòå îöåíêè ïî ïðåäìåòàì:" << std::endl;
 
-        std::cout << "Êîëè÷åñòâî ïðåäìåòîâ: ";
-        std::cin >> numSubjects;
-
-        subjectGrades.resize(numSubjects);
-
-        for (int i = 0; i < numSubjects; ++i) {
-            std::cout << "Îöåíêà çà ïðåäìåò " << i + 1 << ": ";
-            std::cin >> subjectGrades[i];
-        }
-
-        calculateAverageGrade();
-    }
-
-    void displayGrades() const {
-        std::cout << "Îöåíêè ïî ïðåäìåòàì: ";
-        for (int grade : subjectGrades) {
-            std::cout << grade << " ";
-        }
-        std::cout << std::endl;
-
-        std::cout << "Ñðåäíèé áàëë: " << averageGrade << std::endl;
-    }
-
-    void saveGradesToFile(std::ofstream& outFile) const {
-        outFile << numSubjects << " ";
-        for (int grade : subjectGrades) {
-            outFile << grade << " ";
-        }
-        outFile << std::endl;
-    }
-
-private:
-    int numSubjects;
-    std::vector<T> subjectGrades;
-    double averageGrade;
-
-    void calculateAverageGrade() {
-        if (numSubjects == 0) {
-            averageGrade = 0.0;
-            return;
-        }
-
-        T sum = 0;
-        for (T grade : subjectGrades) {
-            sum += grade;
-        }
-
-        averageGrade = static_cast<double>(sum) / numSubjects;
-    }
-};
 
 class Product {
 public:
@@ -116,22 +61,74 @@ public:
         grades.displayGrades();
     }
 
-    void inputGrades() {
-        grades.inputGrades();
-    }
+    
     void saveToFile(std::ofstream& outFile) const {
     	outFile << Name << " " << Price << " " << Quantity << " ";
         grades.saveGradesToFile(outFile);
     }
 
+    void modifyProduct(const std::string&Name) {
+        std::cout << "Продукты, что вы хотите в них изменить?" << std::endl
+        std::cout << "1 Имя"
+        std::cout << "2 Цена"
+        std::cout << "3 Количество"
 
-private:
-    std::string Name;
-    double Price;
-    int Quantity;
-    Grades<int> grades;  // Èçìåíèë íà Grades<int> äëÿ èñïîëüçîâàíèÿ öåëî÷èñëåííûõ îöåíîê
+		
+	int choice;
+        std::cin >> choice;
 
-};
+        switch (choice) {
+            case 1: {
+                std::string Name;
+                double Price;
+                int Quantity;
+
+                std::cout << "Ââåäèòå äàííûå ïðîäóêòà:" << std::endl;
+                std::cout << "Íàçâàíèå: ";
+                std::cin >> Name;
+                std::cout << "Öåíà: ";
+                std::cin >> Price;
+                std::cout << "Êîë-âî: ";
+                std::cin >> Quantity;
+
+                products.push_back(new Product(Name, Price, Quantity));
+                products.back()->inputGrades();
+
+                break;
+            }
+            case 2: {
+                std::string Name;
+                std::cout << "Ââåäèòå äàííûå ïðîäóêòà äëÿ ïîèñêà:" << std::endl;
+                std::cout << "Ïðîäóêò: ";
+                std::cin >> Name;
+
+                auto it = std::find_if(products.begin(), products.end(), [&](const Product* product) {
+                    return product->getName() == Name;
+                });
+
+                if (it != products.end()) {
+                    (*it)->displayInfo();
+                } else {
+                    std::cout << "Ïðîäóêò íå íàéäåí." << std::endl;
+                }
+
+                break;
+            }
+             case 3: {
+                std::cout << "Ââåäèòå íàçâàíèå ôàéëà: ";
+                std::cin >> filename;
+                saveProductsToFile(products, filename);
+                break;
+            }
+            case 4:
+                std::cout << "Âûõîä." << std::endl;
+                break;
+            default:
+                std::cout << "Íåâåðíûé âûáîð." << std::endl;
+        }
+    } while (choice != 4);
+
+
 void saveProductsToFile(const std::vector<Product*>& products, const std::string& filename) {
     std::ofstream outFile(filename);
     if (!outFile.is_open()) {
